@@ -1,0 +1,151 @@
+program sistemaDeEstoque;
+
+const
+  MAX_PROD = 20; // limite maximo do array de produtos
+
+type TProduto = record
+  nome : string;
+  preco : real;
+  quantidade : integer;
+end;
+
+type TEstoque = array [1..MAX_PROD] of TProduto;
+
+var
+  op : integer;
+  totalCadastrado : integer; // controlador da quantidade de produtos ja cadastrados
+  estoque : TEstoque;
+  nome: string;
+  encontrado : boolean;
+
+{ Menu de exibição }
+procedure exibirMenu;
+begin
+  writeln('==== MEU ESTOQUE ====');
+  writeln;
+  writeln('1 - Cadastrar produto');
+  writeln('2 - Buscar produto por nome');
+  writeln('3 - Listar todos os produtos');
+  writeln('4 - Calcular valor total estoque');
+  writeln('5 - Sair');
+end;
+
+{ Cadastro de produtos }
+procedure cadastraProduto(var estoque: TEstoque);
+begin
+  if totalCadastrado > MAX_PROD then
+    begin
+      writeln('Erro!, Estoque cheio.');
+      exit;
+    end;
+
+  write('Nome: ');
+  readln(estoque[totalCadastrado].nome);
+  write('Preco: ');
+  readln(estoque[totalCadastrado].preco);
+  write('Quantidade: ');
+  readln(estoque[totalCadastrado].quantidade);
+
+  totalCadastrado := totalCadastrado + 1;
+
+  writeln('Produto cadastrado com sucesso!');
+end;
+
+
+{ Busca o nome do produto solicitado pelo usuario }
+procedure buscaNome(var estoque: TEstoque; var nome: string);
+var
+  i: integer;
+  guardaEstoque : integer;
+begin
+  encontrado := false;
+  guardaEstoque := totalCadastrado - 1; // apenas produtos em estoque
+
+  for i := 1 to guardaEstoque do
+    begin
+      if nome = estoque[i].nome then
+        begin
+          encontrado := true;
+          writeln('Produto: ', estoque[i].nome);
+          writeln('Preco: ', estoque[i].preco:6:2);
+          writeln('Quantidade: ', estoque[i].quantidade);
+          break;
+        end;
+    end;
+
+  if encontrado = false then     // mensagem caso nao encontre o produto;
+    writeln('Produto nao cadastrado');
+end;
+
+{ Lista todos os produtos que estiverem cadastrados }
+procedure listaProduto(var estoque: TEstoque);
+var
+  i : integer;
+  guardaEstoque : integer;
+begin
+  guardaEstoque := totalCadastrado - 1; // apenas produtos cadastrados
+
+  for i := 1 to guardaEstoque do
+    begin
+      writeln('Produto: ', estoque[i].nome);
+      writeln('Preco: ', estoque[i].preco:6:2);
+      writeln('Quantidade em estoque: ', estoque[i].quantidade);
+      writeln;
+    end;
+end;
+
+{ funcao para calcular o valor total do estoque }
+function valorTotalEstoque(estoque: TEstoque): real;
+var
+  soma, resultado : real;
+  i: Integer;
+  guardaEstoque : integer;
+begin
+  soma := 0;
+  guardaEstoque := totalCadastrado - 1; // apenas produtos cadastrados
+
+  for i := 1 to guardaEstoque do
+    begin
+      resultado := estoque[i].quantidade * estoque[i].preco;
+      soma := soma + resultado;
+    end;
+    valorTotalEstoque := soma;
+end;
+
+begin
+  totalCadastrado := 1;
+
+  repeat
+    exibirMenu;
+    write('>: ');
+    readln(op);
+    writeln;
+
+    case op of
+      1:
+        begin
+          cadastraProduto(estoque);
+          writeln;
+        end;
+      2:
+        begin
+          write('Qual produto voce deseja encontrar? ');
+          readln(nome);
+          buscaNome(estoque,nome);
+          writeln;
+        end;
+      3:
+        begin
+          listaProduto(estoque);
+          writeln;
+        end;
+      4:
+        begin
+          writeln('Valor total em estoque: ', valorTotalEstoque(estoque):8:2);
+          writeln;
+        end;
+    end;
+  until (op = 5);
+
+  writeln('Programa encerrado com sucesso');
+end.
